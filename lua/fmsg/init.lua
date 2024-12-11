@@ -7,10 +7,14 @@ _M.showMsg = function()
 	_M.showFloatWin(msg)
 end
 
+_M.close = function(buf, win) end
+
 _M.showFloatWin = function(msg)
-	local buf = vim.api.nvim_create_buf(false, true)
+	local buf = vim.api.nvim_create_buf(true, true)
 	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, msg)
+
+	vim.api.nvim_buf_set_keymap(buf, "n", "q", "<Cmd>q<cr>", {})
 
 	local width = vim.api.nvim_get_option_value("columns", {})
 	local height = vim.api.nvim_get_option_value("lines", {})
@@ -33,7 +37,13 @@ _M.showFloatWin = function(msg)
 
 	local win = vim.api.nvim_open_win(buf, true, opts)
 
-	return win
+	vim.api.nvim_buf_set_keymap(buf, "n", "q", "", {
+		noremap = true,
+		silent = true,
+		callback = function()
+			vim.api.nvim_win_close(win, true)
+		end,
+	})
 end
 
 _M.getMessage = function()
